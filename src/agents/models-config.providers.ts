@@ -773,6 +773,25 @@ export function buildNvidiaProvider(): ProviderConfig {
         contextWindow: 8192,
         maxTokens: 2048,
       },
+      {
+        id: "nvidia/llama-3.1-nemotron-ultra-253b-v1",
+        name: "NVIDIA Llama 3.1 Nemotron Ultra 253B",
+        reasoning: false,
+        input: ["text"],
+        cost: NVIDIA_DEFAULT_COST,
+        contextWindow: 131072,
+        maxTokens: 4096,
+      },
+      {
+        id: "nvidia/nemotron-3-nano-30b-a3b",
+        name: "NVIDIA Nemotron 3 Nano 30B",
+        reasoning: true,
+        input: ["text"],
+        cost: NVIDIA_DEFAULT_COST,
+        contextWindow: 32768,
+        maxTokens: 16384,
+        thinking: true,
+      },
     ],
   };
 }

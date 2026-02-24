@@ -28,23 +28,41 @@ const REMINDER_CONTEXT_TOTAL_MAX = 700;
 const REMINDER_CONTEXT_MARKER = "\n\nRecent context:\n";
 
 // Flattened schema: runtime validates per-action requirements.
-const CronToolSchema = Type.Object({
-  action: stringEnum(CRON_ACTIONS),
-  gatewayUrl: Type.Optional(Type.String()),
-  gatewayToken: Type.Optional(Type.String()),
-  timeoutMs: Type.Optional(Type.Number()),
-  includeDisabled: Type.Optional(Type.Boolean()),
-  job: Type.Optional(Type.Object({}, { additionalProperties: true })),
-  jobId: Type.Optional(Type.String()),
-  id: Type.Optional(Type.String()),
-  patch: Type.Optional(Type.Object({}, { additionalProperties: true })),
-  text: Type.Optional(Type.String()),
-  mode: optionalStringEnum(CRON_WAKE_MODES),
-  runMode: optionalStringEnum(CRON_RUN_MODES),
-  contextMessages: Type.Optional(
-    Type.Number({ minimum: 0, maximum: REMINDER_CONTEXT_MESSAGES_MAX }),
-  ),
-});
+const CronToolSchema = Type.Object(
+  {
+    action: stringEnum(CRON_ACTIONS),
+    gatewayUrl: Type.Optional(Type.String()),
+    gatewayToken: Type.Optional(Type.String()),
+    timeoutMs: Type.Optional(Type.Number()),
+    includeDisabled: Type.Optional(Type.Boolean()),
+    job: Type.Optional(Type.Object({}, { additionalProperties: true })),
+    jobId: Type.Optional(Type.String()),
+    id: Type.Optional(Type.String()),
+    patch: Type.Optional(Type.Object({}, { additionalProperties: true })),
+    text: Type.Optional(Type.String()),
+    mode: optionalStringEnum(CRON_WAKE_MODES),
+    runMode: optionalStringEnum(CRON_RUN_MODES),
+    contextMessages: Type.Optional(
+      Type.Number({ minimum: 0, maximum: REMINDER_CONTEXT_MESSAGES_MAX }),
+    ),
+    // Flattened job properties for recovery:
+    name: Type.Optional(Type.String()),
+    schedule: Type.Optional(Type.Object({}, { additionalProperties: true })),
+    sessionTarget: Type.Optional(Type.String()),
+    wakeMode: Type.Optional(Type.String()),
+    payload: Type.Optional(Type.Object({}, { additionalProperties: true })),
+    delivery: Type.Optional(Type.Object({}, { additionalProperties: true })),
+    enabled: Type.Optional(Type.Boolean()),
+    description: Type.Optional(Type.String()),
+    deleteAfterRun: Type.Optional(Type.Boolean()),
+    message: Type.Optional(Type.String()),
+    model: Type.Optional(Type.String()),
+    thinking: Type.Optional(Type.String()),
+    timeoutSeconds: Type.Optional(Type.Number()),
+    allowUnsafeExternalContent: Type.Optional(Type.Boolean()),
+  },
+  { additionalProperties: true },
+);
 
 type CronToolOptions = {
   agentSessionKey?: string;
@@ -435,6 +453,43 @@ Use jobId as the canonical identifier; id is accepted for compatibility. Use con
           if (!id) {
             throw new Error("jobId required (id accepted for backward compatibility)");
           }
+          // Flat-params recovery for patch
+          if (
+            !params.patch ||
+            (typeof params.patch === "object" &&
+              params.patch !== null &&
+              Object.keys(params.patch as Record<string, unknown>).length === 0)
+          ) {
+            const PATCH_KEYS: ReadonlySet<string> = new Set([
+              "name",
+              "schedule",
+              "sessionTarget",
+              "wakeMode",
+              "payload",
+              "delivery",
+              "enabled",
+              "description",
+              "deleteAfterRun",
+              "message",
+              "text",
+              "model",
+              "thinking",
+              "timeoutSeconds",
+              "allowUnsafeExternalContent",
+            ]);
+            const synthetic: Record<string, unknown> = {};
+            let found = false;
+            for (const key of Object.keys(params)) {
+              if (PATCH_KEYS.has(key) && params[key] !== undefined) {
+                synthetic[key] = params[key];
+                found = true;
+              }
+            }
+            if (found) {
+              params.patch = synthetic;
+            }
+          }
+
           if (!params.patch || typeof params.patch !== "object") {
             throw new Error("patch required");
           }

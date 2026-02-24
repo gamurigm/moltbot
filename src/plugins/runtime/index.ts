@@ -41,6 +41,7 @@ import { discordMessageActions } from "../../channels/plugins/actions/discord.js
 import { signalMessageActions } from "../../channels/plugins/actions/signal.js";
 import { telegramMessageActions } from "../../channels/plugins/actions/telegram.js";
 import { createWhatsAppLoginTool } from "../../channels/plugins/agent-tools/whatsapp-login.js";
+import { createWhatsAppContactsTool } from "../../channels/plugins/agent-tools/whatsapp-contacts.js";
 import { recordInboundSession } from "../../channels/session.js";
 import { registerMemoryCli } from "../../cli/memory-cli.js";
 import { loadConfig, writeConfigFile } from "../../config/config.js";
@@ -333,10 +334,161 @@ function createRuntimeChannel(): PluginRuntime["channel"] {
       recordInboundSession,
       updateLastRoute,
     },
+<<<<<<< Updated upstream
     mentions: {
       buildMentionRegexes,
       matchesMentionPatterns,
       matchesMentionWithExplicit,
+=======
+    channel: {
+      text: {
+        chunkByNewline,
+        chunkMarkdownText,
+        chunkMarkdownTextWithMode,
+        chunkText,
+        chunkTextWithMode,
+        resolveChunkMode,
+        resolveTextChunkLimit,
+        hasControlCommand,
+        resolveMarkdownTableMode,
+        convertMarkdownTables,
+      },
+      reply: {
+        dispatchReplyWithBufferedBlockDispatcher,
+        createReplyDispatcherWithTyping,
+        resolveEffectiveMessagesConfig,
+        resolveHumanDelayConfig,
+        dispatchReplyFromConfig,
+        finalizeInboundContext,
+        formatAgentEnvelope,
+        /** @deprecated Prefer `BodyForAgent` + structured user-context blocks (do not build plaintext envelopes for prompts). */
+        formatInboundEnvelope,
+        resolveEnvelopeFormatOptions,
+      },
+      routing: {
+        resolveAgentRoute,
+      },
+      pairing: {
+        buildPairingReply,
+        readAllowFromStore: readChannelAllowFromStore,
+        upsertPairingRequest: upsertChannelPairingRequest,
+      },
+      media: {
+        fetchRemoteMedia,
+        saveMediaBuffer,
+      },
+      activity: {
+        record: recordChannelActivity,
+        get: getChannelActivity,
+      },
+      session: {
+        resolveStorePath,
+        readSessionUpdatedAt,
+        recordSessionMetaFromInbound,
+        recordInboundSession,
+        updateLastRoute,
+      },
+      mentions: {
+        buildMentionRegexes,
+        matchesMentionPatterns,
+        matchesMentionWithExplicit,
+      },
+      reactions: {
+        shouldAckReaction,
+        removeAckReactionAfterReply,
+      },
+      groups: {
+        resolveGroupPolicy: resolveChannelGroupPolicy,
+        resolveRequireMention: resolveChannelGroupRequireMention,
+      },
+      debounce: {
+        createInboundDebouncer,
+        resolveInboundDebounceMs,
+      },
+      commands: {
+        resolveCommandAuthorizedFromAuthorizers,
+        isControlCommandMessage,
+        shouldComputeCommandAuthorized,
+        shouldHandleTextCommands,
+      },
+      discord: {
+        messageActions: discordMessageActions,
+        auditChannelPermissions: auditDiscordChannelPermissions,
+        listDirectoryGroupsLive: listDiscordDirectoryGroupsLive,
+        listDirectoryPeersLive: listDiscordDirectoryPeersLive,
+        probeDiscord,
+        resolveChannelAllowlist: resolveDiscordChannelAllowlist,
+        resolveUserAllowlist: resolveDiscordUserAllowlist,
+        sendMessageDiscord,
+        sendPollDiscord,
+        monitorDiscordProvider,
+      },
+      slack: {
+        listDirectoryGroupsLive: listSlackDirectoryGroupsLive,
+        listDirectoryPeersLive: listSlackDirectoryPeersLive,
+        probeSlack,
+        resolveChannelAllowlist: resolveSlackChannelAllowlist,
+        resolveUserAllowlist: resolveSlackUserAllowlist,
+        sendMessageSlack,
+        monitorSlackProvider,
+        handleSlackAction,
+      },
+      telegram: {
+        auditGroupMembership: auditTelegramGroupMembership,
+        collectUnmentionedGroupIds: collectTelegramUnmentionedGroupIds,
+        probeTelegram,
+        resolveTelegramToken,
+        sendMessageTelegram,
+        sendPollTelegram,
+        monitorTelegramProvider,
+        messageActions: telegramMessageActions,
+      },
+      signal: {
+        probeSignal,
+        sendMessageSignal,
+        monitorSignalProvider,
+        messageActions: signalMessageActions,
+      },
+      imessage: {
+        monitorIMessageProvider,
+        probeIMessage,
+        sendMessageIMessage,
+      },
+      whatsapp: {
+        getActiveWebListener,
+        getWebAuthAgeMs,
+        logoutWeb,
+        logWebSelfId,
+        readWebSelfId,
+        webAuthExists,
+        sendMessageWhatsApp: sendMessageWhatsAppLazy,
+        sendPollWhatsApp: sendPollWhatsAppLazy,
+        loginWeb: loginWebLazy,
+        startWebLoginWithQr: startWebLoginWithQrLazy,
+        waitForWebLogin: waitForWebLoginLazy,
+        monitorWebChannel: monitorWebChannelLazy,
+        handleWhatsAppAction: handleWhatsAppActionLazy,
+        createLoginTool: createWhatsAppLoginTool,
+        createContactsTool: createWhatsAppContactsTool,
+      },
+      line: {
+        listLineAccountIds,
+        resolveDefaultLineAccountId,
+        resolveLineAccount,
+        normalizeAccountId: normalizeLineAccountId,
+        probeLineBot,
+        sendMessageLine,
+        pushMessageLine,
+        pushMessagesLine,
+        pushFlexMessage,
+        pushTemplateMessage,
+        pushLocationMessage,
+        pushTextMessageWithQuickReplies,
+        createQuickReplyItems,
+        buildTemplateMessageFromPayload,
+        monitorLineProvider,
+      },
+>>>>>>> Stashed changes
     },
     reactions: {
       shouldAckReaction,

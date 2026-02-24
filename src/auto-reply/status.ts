@@ -4,8 +4,13 @@ import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agen
 import { resolveModelAuthMode } from "../agents/model-auth.js";
 import {
   buildModelAliasIndex,
+<<<<<<< Updated upstream
   resolveConfiguredModelRef,
   resolveModelRefFromString,
+=======
+  modelKey,
+  resolveConfiguredModelRef,
+>>>>>>> Stashed changes
 } from "../agents/model-selection.js";
 import { resolveSandboxRuntimeStatus } from "../agents/sandbox.js";
 import type { SkillCommandSpec } from "../agents/skills.js";
@@ -606,6 +611,7 @@ export function buildStatusMessage(args: StatusArgs): string {
       : undefined;
   const costLabel = showCost && hasUsage ? formatUsd(cost) : undefined;
 
+<<<<<<< Updated upstream
   const selectedAuthLabel = selectedAuthLabelValue ? ` · 🔑 ${selectedAuthLabelValue}` : "";
   const channelModelNote = (() => {
     if (!args.config || !entry) {
@@ -653,6 +659,18 @@ export function buildStatusMessage(args: StatusArgs): string {
         showFallbackAuth ? ` · 🔑 ${activeAuthLabelValue}` : ""
       } (${fallbackState.reason ?? "selected model unavailable"})`
     : null;
+=======
+  const modelLabel = model ? `${provider}/${model}` : "unknown";
+  const aliasIndex = args.config
+    ? buildModelAliasIndex({ cfg: args.config, defaultProvider: DEFAULT_PROVIDER })
+    : null;
+  const key = modelKey(provider, model);
+  const aliases = aliasIndex?.byKey.get(key);
+  const aliasLabelSuffix = aliases && aliases.length > 0 ? ` (${aliases.join(", ")})` : "";
+
+  const authLabel = authLabelValue ? ` · 🔑 ${authLabelValue}` : "";
+  const modelLine = `🧠 Model: ${modelLabel}${aliasLabelSuffix}${authLabel}`;
+>>>>>>> Stashed changes
   const commit = resolveCommitHash();
   const versionLine = `🦞 OpenClaw ${VERSION}${commit ? ` (${commit})` : ""}`;
   const usagePair = formatUsagePair(inputTokens, outputTokens);

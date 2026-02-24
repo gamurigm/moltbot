@@ -21,6 +21,7 @@ export function createWebSendApi(params: {
   sock: {
     sendMessage: (jid: string, content: AnyMessageContent) => Promise<unknown>;
     sendPresenceUpdate: (presence: WAPresence, jid?: string) => Promise<unknown>;
+    getContacts?: () => Array<{ jid: string; name?: string; notify?: string; verifiedName?: string }>;
   };
   defaultAccountId: string;
 }) {
@@ -109,5 +110,6 @@ export function createWebSendApi(params: {
       const jid = toWhatsappJid(to);
       await params.sock.sendPresenceUpdate("composing", jid);
     },
+    getContacts: params.sock.getContacts,
   } as const;
 }

@@ -46,7 +46,10 @@ export const whatsappPlugin: ChannelPlugin<ResolvedWhatsAppAccount> = {
     preferSessionLookupForAnnounceTarget: true,
   },
   onboarding: whatsappOnboardingAdapter,
-  agentTools: () => [getWhatsAppRuntime().channel.whatsapp.createLoginTool()],
+  agentTools: () => [
+    getWhatsAppRuntime().channel.whatsapp.createLoginTool(),
+    getWhatsAppRuntime().channel.whatsapp.createContactsTool(),
+  ],
   pairing: {
     idLabel: "whatsappSenderId",
   },
@@ -239,7 +242,47 @@ export const whatsappPlugin: ChannelPlugin<ResolvedWhatsAppAccount> = {
       };
     },
     listPeers: async (params) => listWhatsAppDirectoryPeersFromConfig(params),
+    listPeersLive: async ({ accountId, query }) => {
+      const listener = getWhatsAppRuntime().channel.whatsapp.getActiveWebListener(accountId);
+      if (!listener || typeof listener.getContacts !== "function") {
+        return [];
+      }
+      const allContacts = listener.getContacts();
+      const lowerQuery = query?.toLowerCase();
+      return allContacts
+        .filter((c) => !c.jid.endsWith("@g.us"))
+        .filter((c) => {
+          if (!lowerQuery) return true;
+          const name = (c.name || c.notify || c.verifiedName || "").toLowerCase();
+          return name.includes(lowerQuery) || c.jid.includes(lowerQuery);
+        })
+        .map((c) => ({
+          kind: "user",
+          id: c.jid,
+          name: c.name || c.notify || c.verifiedName,
+        }));
+    },
     listGroups: async (params) => listWhatsAppDirectoryGroupsFromConfig(params),
+    listGroupsLive: async ({ accountId, query }) => {
+      const listener = getWhatsAppRuntime().channel.whatsapp.getActiveWebListener(accountId);
+      if (!listener || typeof listener.getContacts !== "function") {
+        return [];
+      }
+      const allContacts = listener.getContacts();
+      const lowerQuery = query?.toLowerCase();
+      return allContacts
+        .filter((c) => c.jid.endsWith("@g.us"))
+        .filter((c) => {
+          if (!lowerQuery) return true;
+          const name = (c.name || c.notify || c.verifiedName || "").toLowerCase();
+          return name.includes(lowerQuery) || c.jid.includes(lowerQuery);
+        })
+        .map((c) => ({
+          kind: "group",
+          id: c.jid,
+          name: c.name || c.notify || c.verifiedName,
+        }));
+    },
   },
   actions: {
     listActions: ({ cfg }) => {

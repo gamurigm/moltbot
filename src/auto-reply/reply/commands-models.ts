@@ -28,6 +28,7 @@ export type ModelsProviderData = {
   byProvider: Map<string, Set<string>>;
   providers: string[];
   resolvedDefault: { provider: string; model: string };
+  aliasIndex: ReturnType<typeof buildModelAliasIndex>;
 };
 
 /**
@@ -115,8 +116,7 @@ export async function buildModelsProviderData(cfg: OpenClawConfig): Promise<Mode
   addModelConfigEntries();
 
   const providers = [...byProvider.keys()].toSorted();
-
-  return { byProvider, providers, resolvedDefault };
+  return { byProvider, providers, resolvedDefault, aliasIndex };
 }
 
 function formatProviderLine(params: { provider: string; count: number }): string {
@@ -230,7 +230,7 @@ export async function resolveModelsCommandReply(params: {
   const argText = body.replace(/^\/models\b/i, "").trim();
   const { provider, page, pageSize, all } = parseModelsArgs(argText);
 
-  const { byProvider, providers } = await buildModelsProviderData(params.cfg);
+  const { byProvider, providers, aliasIndex } = await buildModelsProviderData(params.cfg);
   const isTelegram = params.surface === "telegram";
 
   // Provider list (no provider specified)
@@ -344,7 +344,10 @@ export async function resolveModelsCommandReply(params: {
 
   const lines: string[] = [header];
   for (const id of pageModels) {
-    lines.push(`- ${provider}/${id}`);
+    const key = `${provider}/${id}`;
+    const aliases = aliasIndex.byKey.get(key);
+    const aliasLabel = aliases && aliases.length > 0 ? ` (${aliases.join(", ")})` : "";
+    lines.push(`- ${key}${aliasLabel}`);
   }
 
   lines.push("", "Switch: /model <provider/model>");

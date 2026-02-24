@@ -26,6 +26,12 @@ export type ActiveWebListener = {
   ) => Promise<void>;
   sendComposingTo: (to: string) => Promise<void>;
   close?: () => Promise<void>;
+  getContacts?: () => Array<{
+    jid: string;
+    name?: string;
+    notify?: string;
+    verifiedName?: string;
+  }>;
 };
 
 let _currentListener: ActiveWebListener | null = null;

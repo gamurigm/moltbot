@@ -9,6 +9,7 @@ export function normalizeWhatsAppMessagingTarget(raw: string): string | undefine
   return normalizeWhatsAppTarget(trimmed) ?? undefined;
 }
 
+<<<<<<< Updated upstream
 export function normalizeWhatsAppAllowFromEntries(allowFrom: Array<string | number>): string[] {
   return allowFrom
     .map((entry) => String(entry).trim())
@@ -22,4 +23,22 @@ export function looksLikeWhatsAppTargetId(raw: string): boolean {
     raw,
     prefixPattern: /^whatsapp:/i,
   });
+=======
+export function looksLikeWhatsAppTargetId(raw: string): boolean {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return false;
+  }
+  if (/^whatsapp:/i.test(trimmed)) {
+    return true;
+  }
+  if (trimmed.includes("@")) {
+    return true;
+  }
+  // Allow phone numbers with spaces, dashes, or parentheses
+  if (/^\+?[\d\s-.()]{7,}$/.test(trimmed)) {
+    return true;
+  }
+  return /^\+?\d{3,}$/.test(trimmed);
+>>>>>>> Stashed changes
 }

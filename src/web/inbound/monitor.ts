@@ -117,6 +117,10 @@ export async function monitorWebInbox(options: {
     { subject?: string; participants?: string[]; expires: number }
   >();
   const GROUP_META_TTL_MS = 5 * 60 * 1000; // 5 minutes
+  const contacts = new Map<
+    string,
+    { jid: string; name?: string; notify?: string; verifiedName?: string }
+  >();
   const lidLookup = sock.signalRepository?.lidMapping;
 
   const resolveInboundJid = async (jid: string | null | undefined): Promise<string | null> =>
@@ -345,6 +349,45 @@ export async function monitorWebInbox(options: {
   };
   sock.ev.on("messages.upsert", handleMessagesUpsert);
 
+  sock.ev.on("contacts.upsert", (newContacts) => {
+    for (const contact of newContacts) {
+      const existing = contacts.get(contact.id);
+      contacts.set(contact.id, {
+        jid: contact.id,
+        name: contact.name ?? existing?.name,
+        notify: contact.notify ?? existing?.notify,
+        verifiedName: contact.verifiedName ?? existing?.verifiedName,
+      });
+    }
+  });
+
+  sock.ev.on("contacts.update", (updates) => {
+    for (const update of updates) {
+      if (!update.id) continue;
+      const existing = contacts.get(update.id);
+      contacts.set(update.id, {
+        jid: update.id,
+        name: update.name ?? existing?.name,
+        notify: update.notify ?? existing?.notify,
+        verifiedName: update.verifiedName ?? existing?.verifiedName,
+      });
+    }
+  });
+
+  sock.ev.on("messaging-history.set", ({ contacts: newContacts }) => {
+    if (newContacts) {
+      for (const contact of newContacts) {
+        const existing = contacts.get(contact.id);
+        contacts.set(contact.id, {
+          jid: contact.id,
+          name: contact.name ?? existing?.name,
+          notify: contact.notify ?? existing?.notify,
+          verifiedName: contact.verifiedName ?? existing?.verifiedName,
+        });
+      }
+    }
+  });
+
   const handleConnectionUpdate = (
     update: Partial<import("@whiskeysockets/baileys").ConnectionState>,
   ) => {
@@ -368,6 +411,7 @@ export async function monitorWebInbox(options: {
     sock: {
       sendMessage: (jid: string, content: AnyMessageContent) => sock.sendMessage(jid, content),
       sendPresenceUpdate: (presence, jid?: string) => sock.sendPresenceUpdate(presence, jid),
+      getContacts: () => Array.from(contacts.values()),
     },
     defaultAccountId: options.accountId,
   });

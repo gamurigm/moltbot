@@ -236,12 +236,18 @@ export async function maybeHandleModelDirectiveInfo(params: {
   }
 
   if (wantsSummary) {
+<<<<<<< Updated upstream
     const modelRefs = resolveSelectedAndActiveModel({
       selectedProvider: params.provider,
       selectedModel: params.model,
       sessionEntry: params.sessionEntry,
     });
     const current = modelRefs.selected.label;
+=======
+    const current = `${params.provider}/${params.model}`;
+    const aliases = params.aliasIndex.byKey.get(current);
+    const aliasLabel = aliases && aliases.length > 0 ? ` (${aliases.join(", ")})` : "";
+>>>>>>> Stashed changes
     const isTelegram = params.surface === "telegram";
     const activeRuntimeLine = modelRefs.activeDiffers
       ? `Active: ${modelRefs.active.label} (runtime)`
@@ -251,11 +257,15 @@ export async function maybeHandleModelDirectiveInfo(params: {
       const buttons = buildBrowseProvidersButton();
       return {
         text: [
+<<<<<<< Updated upstream
           `Current: ${current}${modelRefs.activeDiffers ? " (selected)" : ""}`,
           activeRuntimeLine,
+=======
+          `Current: ${current}${aliasLabel}`,
+>>>>>>> Stashed changes
           "",
           "Tap below to browse models, or use:",
-          "/model <provider/model> to switch",
+          "/model <id> or /<alias> to switch",
           "/model status for details",
         ]
           .filter(Boolean)
@@ -266,10 +276,14 @@ export async function maybeHandleModelDirectiveInfo(params: {
 
     return {
       text: [
+<<<<<<< Updated upstream
         `Current: ${current}${modelRefs.activeDiffers ? " (selected)" : ""}`,
         activeRuntimeLine,
+=======
+        `Current: ${current}${aliasLabel}`,
+>>>>>>> Stashed changes
         "",
-        "Switch: /model <provider/model>",
+        "Switch: /model <id> or /<alias>",
         "Browse: /models (providers) or /models <provider> (models)",
         "More: /model status",
       ]
