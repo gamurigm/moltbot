@@ -195,8 +195,9 @@ export function jidToE164(jid: string, opts?: JidToE164Options): string | null {
     }
     const shouldLog = opts?.logMissing ?? shouldLogVerbose();
     if (shouldLog) {
-      logVerbose(`LID mapping not found for ${lid}; skipping inbound message`);
+      logVerbose(`LID mapping not found for ${lid}; using fallback LID digits`);
     }
+    return `+${lid}`;
   }
 
   return null;
